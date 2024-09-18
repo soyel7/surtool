@@ -14,7 +14,7 @@ from typing import (Tuple)
 from evalutils.exceptions import ValidationError
 import random
 import json
-
+from ultralytics import YOLO
 
 ####
 # Toggle the variable below to debug locally. The final container would need to have execute_in_docker=True
@@ -98,7 +98,6 @@ class Surgtoolloc_det(DetectionAlgorithm):
         input_video_file_path = case #VideoLoader.load(case)
         # Detect and score candidates
         scored_candidates = self.predict(case.path) #video file > load evalutils.py
-
         # Write resulting candidates to result.json for this case
         return dict(type="Multiple 2D bounding boxes", boxes=scored_candidates, version={"major": 1, "minor": 0})
 
@@ -131,20 +130,73 @@ class Surgtoolloc_det(DetectionAlgorithm):
         Output:
         tools -> list of prediction dictionaries (per frame) in the correct format as described in documentation 
         """
+        tool_dict = {
+                6: "bipolar_forceps",
+                1: "needle_driver",
+                7: "monopolar_curved_scissor",
+                9: "cadiere_forceps",
+                12: "vessel_sealer",
+                13: "force_bipolar",
+                17: "permanent_cautery_hook_spatula",
+                18: "stapler",
+                20: "grasping_retractor",
+                19: "tip_up_fenestrated_grasper",
+                21: "clip_applier",
+                4: "prograsp_forceps"
+
+            }
+
         print('Video file to be loaded: ' + str(fname))
         cap = cv2.VideoCapture(str(fname))
         num_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         ###                                                                     ###
         ###  TODO: adapt the following part for YOUR submission: make prediction
         ###                                                                     ###
-       
-        
+        frame_data = []
+        output_data = []
         all_frames_predicted_outputs = []
         for fid in range(num_frames):
-            tool_detections = self.generate_bbox(fid)
-            all_frames_predicted_outputs += tool_detections
+            ret, frame = cap.read()
+            model = YOLO("/opt/algorithm/best.pt")
+            results = model(frame, iou = 0.2)
+            # Process results list
+            for i, result in enumerate(results):
+                
+                boxes = result.boxes  # Boxes object for bounding box outputs
+                probs = boxes.conf  # confidence probabilities
+                classes = boxes.cls  # class labels
+                xyxy = boxes.xyxy  # bounding box coordinates (x1, y1, x2, y2)
+                
+                for j in range(len(xyxy)):
+                    x1, y1, x2, y2 = xyxy[j].tolist()
+                    conf = probs[j].item()
+                    class_id = int(classes[j])
+                    class_name = None
+                    if class_id in tool_dict:
+                            class_name = tool_dict[class_id]
 
-        return all_frames_predicted_outputs
+                            # 构建边界框的四个角点
+                            corners = [
+                                [round(x1, 1), round(y1, 1), 0.5],
+                                [round(x2, 1), round(y1, 1), 0.5],
+                                [round(x2, 1), round(y2, 1), 0.5],
+                                [round(x1, 1), round(y2, 1), 0.5]
+                            ]
+                            box = {
+                                "corners": corners,
+                                "name": f"slice_nr_{fid}_{class_name}",
+                                "probability": float(conf)
+                            }
+                            # 将数据添加到 frame_data 中
+                            frame_data.append(box)
+                        
+                            # 将 frame_data 添加到 output_data 列表中
+                            output_data.append(frame_data)
+
+            # tool_detections = self.generate_bbox(fid)
+            # all_frames_predicted_outputs += tool_detections
+
+        return frame_data
 
 
 if __name__ == "__main__":
