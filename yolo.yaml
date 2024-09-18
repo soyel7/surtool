@@ -1,0 +1,33 @@
+path: /home/ydw-3090/change_code/data/datasets/data
+train: images/train
+val: images/train
+names:
+  0: Needle_driver_1
+  1: Needle_driver_2
+  2: Prograsp_forceps_1
+  3: Needle_driver_3
+  4: Prograsp_forceps_2
+  5: Prograsp_forceps_3
+  6: Bipolar_forceps_2
+  7: Monopolar_curved_scissors_1
+  8: Cadiere_forceps_1
+  9: Cadiere_forceps_2
+  10: Bipolar_forceps_1
+  11: Bipolar_forceps_3
+  12: Vessel_sealer_2
+  13: Force_bipolar_2
+  14: Vessel_sealer_1
+  15: Vessel_sealer_3
+  16: Force_bipolar_1
+  17: Permanent_cautery_hook/spatula_2
+  18: Stapler_1
+  19: Tip-up_fenestrated_grasper
+  20: Grasping_retractor_1
+  21: Clip_applier_2
+  22: Cadiere_forceps_3
+  23: Clip_applier_1
+  24: Force_bipolar_3
+  25: Permanent_cautery_hook/spatula_1
+  26: Stapler_2
+  27: Clip_applier_3
+  28: Monopolar_curved_scissors_2
