@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-./build.sh
+bash build.sh
 
-docker save surgtoolloc_det | gzip -c > surgtoolloc_det.tar.gz
+docker save surgtoolloc_cqupt_0916 | gzip -c > surgtoolloc_cqupt_0916.tar.gz
